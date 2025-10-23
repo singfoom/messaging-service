@@ -21,9 +21,11 @@ defmodule MessagingServiceWeb.Router do
   end
 
   # Other scopes may use custom stacks.
-  # scope "/api", MessagingServiceWeb do
-  #   pipe_through :api
-  # end
+  scope "/api", MessagingServiceWeb do
+    pipe_through :api
+
+    resources "/messages", MessageController, except: [:new, :edit]
+  end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:messaging_service, :dev_routes) do
