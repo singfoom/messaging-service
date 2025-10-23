@@ -2,6 +2,8 @@ defmodule MessagingService.Messages.Message do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias MessagingService.Messages.Conversation
+
   schema "messages" do
     field :timestamp, :utc_datetime
     field :type, :string
@@ -9,7 +11,7 @@ defmodule MessagingService.Messages.Message do
     field :to, :string
     field :from, :string
     field :attachments, {:array, :string}
-
+    belongs_to :conversation, Conversation
     timestamps(type: :utc_datetime)
   end
 
