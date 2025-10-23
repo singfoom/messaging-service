@@ -24,7 +24,8 @@ defmodule MessagingServiceWeb.Router do
   scope "/api", MessagingServiceWeb do
     pipe_through :api
 
-    resources "/messages", MessageController, except: [:new, :edit]
+    post "/messages/sms", MessageController, :send_sms
+    post "/messages/email", MessageController, :send_email
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development

@@ -5,11 +5,22 @@ defmodule MessagingService.Factory do
   use ExMachina.Ecto, repo: MessagingService.Repo
   alias MessagingService.Messages.Message
 
-  def message_factory do
+  def sms_message_factory do
     %Message{
       from: Faker.Phone.EnUs.phone(),
       to: Faker.Phone.EnUs.phone(),
-      type: "sms",
+      type: Faker.Util.pick(["sms", "mms"]),
+      attachments: [],
+      body: Faker.Lorem.Shakespeare.hamlet(),
+      timestamp: DateTime.utc_now()
+    }
+  end
+
+  def email_message_factory do
+    %Message{
+      from: Faker.Internet.email(),
+      to: Faker.Internet.email(),
+      type: "email",
       attachments: [],
       body: Faker.Lorem.Shakespeare.hamlet(),
       timestamp: DateTime.utc_now()
