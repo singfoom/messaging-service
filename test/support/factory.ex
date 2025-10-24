@@ -3,6 +3,8 @@ defmodule MessagingService.Factory do
   An ex machina based factory for data in tests
   """
   use ExMachina.Ecto, repo: MessagingService.Repo
+
+  alias MessagingService.Messages.Conversation
   alias MessagingService.Messages.Message
 
   def sms_message_factory do
@@ -24,6 +26,12 @@ defmodule MessagingService.Factory do
       attachments: [],
       body: Faker.Lorem.Shakespeare.hamlet(),
       timestamp: DateTime.utc_now()
+    }
+  end
+
+  def conversation_factory do
+    %Conversation{
+      participants: [Faker.Internet.email(), Faker.Internet.email()]
     }
   end
 end
