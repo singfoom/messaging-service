@@ -20,7 +20,19 @@ defmodule MessagingServiceWeb.ConversationJSON do
     %{
       id: conversation.id,
       participants: conversation.participants,
-      messages: MessageJSON.index(%{messages: conversation.messages})[:data]
+      messages:
+        if(conversation.messages) do
+          MessageJSON.index(%{messages: conversation.messages})[:data]
+        else
+          []
+        end
+    }
+  end
+
+  defp data(%Conversation{messages: %Ecto.Association.NotLoaded{}} = conversation) do
+    %{
+      id: conversation.id,
+      participants: conversation.participants
     }
   end
 end
