@@ -5,6 +5,19 @@ defmodule MessagingService.ConversationsTest do
   alias MessagingService.Conversations
   import MessagingService.Factory
 
+  describe "list_conversations/0" do
+    test "returns all conversations" do
+      conversation_1 = insert(:conversation)
+      conversation_2 = insert(:conversation)
+
+      conversations = Conversations.list_conversations()
+
+      assert length(conversations) == 2
+      assert Enum.any?(conversations, fn c -> c.id == conversation_1.id end)
+      assert Enum.any?(conversations, fn c -> c.id == conversation_2.id end)
+    end
+  end
+
   describe "get_conversation/1" do
     test "it returns an existing book by id" do
       conversation = insert(:conversation)

@@ -9,6 +9,11 @@ defmodule MessagingService.Conversations do
   alias MessagingService.Messages.Conversation
   alias MessagingService.Messages.Message
 
+  def list_conversations() do
+    Conversation
+    |> Repo.all()
+  end
+
   def get_conversation(conversation_id) do
     Conversation
     |> Repo.get(conversation_id)

@@ -26,6 +26,8 @@ defmodule MessagingServiceWeb.Router do
 
     post "/messages/sms", MessageController, :send_sms
     post "/messages/email", MessageController, :send_email
+    get "/conversations", ConversationController, :index
+    get "/conversations/:id/messages", ConversationController, :show
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
