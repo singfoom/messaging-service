@@ -1,4 +1,11 @@
 defmodule MessagingService.Messages.Message do
+  @moduledoc """
+  The message schema holds the information about individual messages
+  in the system.  Handles different message types via the type attribute.
+
+  Current valid types are ["email", "mms", "sms"]
+  """
+
   use Ecto.Schema
   import Ecto.Changeset
 

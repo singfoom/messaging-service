@@ -1,4 +1,9 @@
 defmodule MessagingService.Messages.Conversation do
+  @moduledoc """
+  The conversation schema holds the information about a conversation
+  between ONLY two participants.  It provides a schema to group those
+  messages together as they are persisted.
+  """
   use Ecto.Schema
   import Ecto.Changeset
 
