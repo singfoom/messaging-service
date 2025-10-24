@@ -9,6 +9,12 @@ defmodule MessagingService.Conversations do
   alias MessagingService.Messages.Conversation
   alias MessagingService.Messages.Message
 
+  def get_conversation(conversation_id) do
+    Conversation
+    |> Repo.get(conversation_id)
+    |> Repo.preload(:messages)
+  end
+
   def get_by_participants(participants) when is_list(participants) do
     [p1 | rest] = participants
     p2 = hd(rest)
