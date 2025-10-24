@@ -57,6 +57,7 @@ defmodule MessagingService.MixProject do
       {:phoenix_live_view, "~> 1.0"},
       {:phoenix, "~> 1.7.21"},
       {:postgrex, ">= 0.0.0"},
+      {:req, "~> 0.5.0"},
       {:swoosh, "~> 1.5"},
       {:tailwind, "~> 0.2.0", runtime: Mix.env() == :dev},
       {:telemetry_metrics, "~> 1.0"},
