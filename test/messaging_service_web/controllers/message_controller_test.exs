@@ -313,17 +313,13 @@ defmodule MessagingServiceWeb.MessageControllerTest do
 
   describe "sms_webhook/2" do
     test "returns 200 when message with messaging_provider_id exists", %{conn: conn} do
-      # First create a message with a messaging_provider_id
-      initial_params = %{
-        "from" => "+18045551234",
-        "to" => "+12016661234",
-        "type" => "sms",
-        "body" => "Outbound message",
-        "messaging_provider_id" => "twilio-msg-123",
-        "timestamp" => "2024-11-01T14:00:00Z"
-      }
-
-      post(conn, ~p"/api/messages/sms", initial_params)
+      insert(:sms_message,
+        from: "+18045551234",
+        to: "+12016661234",
+        type: "sms",
+        body: "Incoming SMS",
+        messaging_provider_id: "twilio-msg-123"
+      )
 
       # Now send webhook with the same messaging_provider_id
       webhook_params = %{
@@ -341,18 +337,14 @@ defmodule MessagingServiceWeb.MessageControllerTest do
     end
 
     test "returns 200 when MMS message with messaging_provider_id exists", %{conn: conn} do
-      # Create an MMS message
-      initial_params = %{
-        "from" => "+18045551234",
-        "to" => "+12016661234",
-        "type" => "mms",
-        "body" => "Outbound MMS",
-        "messaging_provider_id" => "twilio-mms-456",
-        "attachments" => ["https://example.com/sent-image.jpg"],
-        "timestamp" => "2024-11-01T14:00:00Z"
-      }
-
-      post(conn, ~p"/api/messages/sms", initial_params)
+      insert(:sms_message,
+        from: "+18045551234",
+        to: "+12016661234",
+        type: "mms",
+        body: "Incoming MMS",
+        attachments: ["https://example.com/media.jpg"],
+        messaging_provider_id: "twilio-mms-456"
+      )
 
       # Send webhook for the MMS
       webhook_params = %{
@@ -403,16 +395,12 @@ defmodule MessagingServiceWeb.MessageControllerTest do
 
   describe "email_webhook/2" do
     test "returns 200 when message with xillio_id exists", %{conn: conn} do
-      # First create an email message with a messaging_provider_id (xillio_id)
-      initial_params = %{
-        "from" => "user@usehatchapp.com",
-        "to" => "contact@gmail.com",
-        "body" => "<html><body>Outbound email</body></html>",
-        "messaging_provider_id" => "sendgrid-email-789",
-        "timestamp" => "2024-11-01T14:00:00Z"
-      }
-
-      post(conn, ~p"/api/messages/email", initial_params)
+      insert(:email_message,
+        from: "user@usehatchapp.com",
+        to: "contact@gmail.com",
+        body: "<html><body>Outbound email</body></html>",
+        messaging_provider_id: "sendgrid-email-789"
+      )
 
       # Now send webhook with xillio_id matching the messaging_provider_id
       webhook_params = %{
@@ -430,16 +418,12 @@ defmodule MessagingServiceWeb.MessageControllerTest do
     end
 
     test "returns 200 when email message without attachments exists", %{conn: conn} do
-      # Create email without attachments
-      initial_params = %{
-        "from" => "sender@example.com",
-        "to" => "recipient@example.com",
-        "body" => "Plain email body",
-        "messaging_provider_id" => "sendgrid-email-999",
-        "timestamp" => "2024-11-01T14:00:00Z"
-      }
-
-      post(conn, ~p"/api/messages/email", initial_params)
+      insert(:email_message,
+        from: "sender@example.com",
+        to: "recipient@example.com",
+        body: "Plain email body",
+        messaging_provider_id: "sendgrid-email-999"
+      )
 
       # Send webhook
       webhook_params = %{
@@ -485,17 +469,13 @@ defmodule MessagingServiceWeb.MessageControllerTest do
     end
 
     test "returns 200 when email with HTML content and attachments exists", %{conn: conn} do
-      # Create email with both HTML and attachments
-      initial_params = %{
-        "from" => "contact@gmail.com",
-        "to" => "user@usehatchapp.com",
-        "body" => "<html><body>Rich content email</body></html>",
-        "messaging_provider_id" => "message-3",
-        "attachments" => ["https://example.com/original-doc.pdf"],
-        "timestamp" => "2024-11-01T13:00:00Z"
-      }
-
-      post(conn, ~p"/api/messages/email", initial_params)
+      insert(:email_message,
+        from: "contact@gmail.com",
+        to: "user@usehatchapp.com",
+        body: "<html><body>This is an incoming email with <b>HTML</b> content</body></html>",
+        attachments: ["https://example.com/received-document.pdf"],
+        messaging_provider_id: "message-3"
+      )
 
       # Send webhook matching the selected JSON from the user
       webhook_params = %{

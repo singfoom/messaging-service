@@ -13,9 +13,11 @@ defmodule MessagingServiceWeb.MessageController do
 
     with :ok <- validate_required_fields(atomized_params, [:from, :to]),
          {:ok, result} <- Conversations.find_or_create_conversation_with_message(atomized_params),
-         {:ok, %Req.Response{status: status}} <- TwilioAPI.send_sms_message(result) do
+         {:ok, %Req.Response{status: status, body: body}} <- TwilioAPI.send_sms_message(result) do
       case status do
         201 ->
+          {:ok, _message} = Messages.update_message(result, %{messaging_provider_id: body[:sid]})
+
           conn
           |> put_status(:created)
           |> json(%{message: "Message created"})
@@ -30,9 +32,11 @@ defmodule MessagingServiceWeb.MessageController do
     with :ok <- validate_required_fields(atomized_params, [:from, :to]),
          {:ok, result} <-
            Conversations.find_or_create_conversation_with_message(atomized_params),
-         {:ok, %Req.Response{status: status}} <- SendgridAPI.send_email(result) do
+         {:ok, %Req.Response{status: status, body: body}} <- SendgridAPI.send_email(result) do
       case status do
         202 ->
+          {:ok, _message} = Messages.update_message(result, %{messaging_provider_id: body[:sid]})
+
           conn
           |> put_status(:created)
           |> json(%{message: "Message created"})

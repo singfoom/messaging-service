@@ -6,6 +6,7 @@ defmodule MessagingService.Messages do
   import Ecto.Query, warn: false
   alias MessagingService.Repo
 
+  alias MessagingService.Messages.Conversation
   alias MessagingService.Messages.Message
 
   @doc """
@@ -77,7 +78,7 @@ defmodule MessagingService.Messages do
   end
 
   @doc """
-  Updates a message.
+  Updates a message or the first message of a conversation.
 
   ## Examples
 
@@ -89,6 +90,14 @@ defmodule MessagingService.Messages do
 
   """
   def update_message(%Message{} = message, attrs) do
+    message
+    |> Message.changeset(attrs)
+    |> Repo.update()
+  end
+
+  def update_message(%Conversation{messages: messages}, attrs) do
+    message = hd(messages)
+
     message
     |> Message.changeset(attrs)
     |> Repo.update()
