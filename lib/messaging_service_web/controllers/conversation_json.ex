@@ -28,7 +28,7 @@ defmodule MessagingServiceWeb.ConversationJSON do
       id: conversation.id,
       participants: conversation.participants,
       messages:
-        if(conversation.messages) do
+        if conversation.messages do
           MessageJSON.index(%{messages: conversation.messages})[:data]
         else
           []

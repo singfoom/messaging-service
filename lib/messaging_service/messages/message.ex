@@ -9,7 +9,17 @@ defmodule MessagingService.Messages.Message do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Faker.DateTime
   alias MessagingService.Messages.Conversation
+
+  @type t :: %__MODULE__{
+          timestamp: DateTime.t(),
+          type: String.t(),
+          body: String.t(),
+          to: String.t(),
+          from: String.t(),
+          attachments: list(String.t())
+        }
 
   schema "messages" do
     field :timestamp, :utc_datetime

@@ -21,4 +21,11 @@ defmodule MessagingServiceWeb.FallbackController do
     |> put_view(html: MessagingServiceWeb.ErrorHTML, json: MessagingServiceWeb.ErrorJSON)
     |> render(:"404")
   end
+
+  # Handle bad request errors (missing required fields, etc.)
+  def call(conn, {:error, {:bad_request, message}}) do
+    conn
+    |> put_status(:bad_request)
+    |> json(%{errors: %{detail: message}})
+  end
 end
