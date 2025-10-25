@@ -16,7 +16,14 @@ defmodule MessagingServiceWeb.ConversationJSON do
     %{data: data(conversation)}
   end
 
-  defp data(%Conversation{} = conversation) do
+  defp data(%Conversation{messages: %Ecto.Association.NotLoaded{}} = conversation) do
+    %{
+      id: conversation.id,
+      participants: conversation.participants
+    }
+  end
+
+  defp data(%Conversation{messages: _messages} = conversation) do
     %{
       id: conversation.id,
       participants: conversation.participants,
@@ -26,13 +33,6 @@ defmodule MessagingServiceWeb.ConversationJSON do
         else
           []
         end
-    }
-  end
-
-  defp data(%Conversation{messages: %Ecto.Association.NotLoaded{}} = conversation) do
-    %{
-      id: conversation.id,
-      participants: conversation.participants
     }
   end
 end

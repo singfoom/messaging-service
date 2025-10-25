@@ -27,6 +27,7 @@ defmodule MessagingServiceWeb.ConnCase do
       # Import conveniences for testing with connections
       import Plug.Conn
       import Phoenix.ConnTest
+      import MessagingService.Factory
       import MessagingServiceWeb.ConnCase
     end
   end
