@@ -6,10 +6,13 @@ defmodule MessagingService.External.TwilioAPI.Req do
 
   @behaviour MessagingService.External.TwilioAPI
 
+  alias MessagingService.Messages.Conversation
+  alias MessagingService.Messages.Message
+
   # POST https://api.twilio.com/2010-04-01/Accounts/{AccountSid}/Messages.json
 
   @impl true
-  def send_mms_message(message) do
+  def send_sms_message(%Message{} = message) do
     {:ok,
      %Req.Response{
        headers: %{"content_type" => "application/json"},
@@ -42,7 +45,9 @@ defmodule MessagingService.External.TwilioAPI.Req do
   end
 
   @impl true
-  def send_sms_message(message) do
+  def send_sms_message(%Conversation{messages: messages}) do
+    message = hd(messages)
+
     {:ok,
      %Req.Response{
        headers: %{"content_type" => "application/json"},

@@ -9,6 +9,11 @@ defmodule MessagingService.Messages.Conversation do
 
   alias MessagingService.Messages.Message
 
+  @type t :: %__MODULE__{
+          messages: list(Message.t()),
+          participants: list(String.t())
+        }
+
   schema "conversations" do
     field :participants, {:array, :string}
     has_many :messages, Message

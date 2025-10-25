@@ -1,9 +1,9 @@
 defmodule MessagingServiceWeb.MessageController do
   use MessagingServiceWeb, :controller
 
+  alias MessagingService.External.SendgridAPI
+  alias MessagingService.External.TwilioAPI
   alias MessagingService.Conversations
-  # alias MessagingService.Messages
-  # alias MessagingService.Messages.Message
 
   action_fallback MessagingServiceWeb.FallbackController
 
@@ -11,12 +11,14 @@ defmodule MessagingServiceWeb.MessageController do
     atomized_params = convert_keys_to_atoms(params)
 
     with :ok <- validate_required_fields(atomized_params, [:from, :to]),
-         {:ok, _result} <- Conversations.find_or_create_conversation_with_message(atomized_params) do
-      conn
-      |> put_status(:created)
-      |> json(%{message: "Message created"})
-
-      # Send text via Req client
+         {:ok, result} <- Conversations.find_or_create_conversation_with_message(atomized_params),
+         {:ok, %Req.Response{status: status}} <- TwilioAPI.send_sms_message(result) do
+      case status do
+        201 ->
+          conn
+          |> put_status(:created)
+          |> json(%{message: "Message created"})
+      end
     end
   end
 
@@ -25,12 +27,15 @@ defmodule MessagingServiceWeb.MessageController do
     atomized_params = convert_keys_to_atoms(params)
 
     with :ok <- validate_required_fields(atomized_params, [:from, :to]),
-         {:ok, _result} <- Conversations.find_or_create_conversation_with_message(atomized_params) do
-      conn
-      |> put_status(:created)
-      |> json(%{message: "Message created"})
-
-      # Send email via Req client
+         {:ok, result} <-
+           Conversations.find_or_create_conversation_with_message(atomized_params),
+         {:ok, %Req.Response{status: status}} <- SendgridAPI.send_email(result) do
+      case status do
+        202 ->
+          conn
+          |> put_status(:created)
+          |> json(%{message: "Message created"})
+      end
     end
   end
 
