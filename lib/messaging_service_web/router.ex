@@ -26,6 +26,8 @@ defmodule MessagingServiceWeb.Router do
 
     post "/messages/sms", MessageController, :send_sms
     post "/messages/email", MessageController, :send_email
+    post "/webhooks/sms", MessageController, :sms_webhook
+    post "/webhooks/email", MessageController, :email_webhook
     get "/conversations", ConversationController, :index
     get "/conversations/:id/messages", ConversationController, :show
   end

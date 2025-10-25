@@ -23,6 +23,9 @@ config :messaging_service, MessagingServiceWeb.Endpoint,
 # In test we don't send emails
 config :messaging_service, MessagingService.Mailer, adapter: Swoosh.Adapters.Test
 
+config :messaging_service, twilio_api: MessagingService.External.TwilioAPI.Req
+config :messaging_service, sendgrid_api: MessagingService.External.SendgridAPI.Req
+
 # Disable swoosh api client as it is only required for production adapters
 config :swoosh, :api_client, false
 
