@@ -38,6 +38,27 @@ defmodule MessagingService.Messages do
   def get_message!(id), do: Repo.get!(Message, id)
 
   @doc """
+    Gets a single message by messaging_provider_id
+
+    ## Examples
+
+    iex> get_by_messaging_provider_id("sm14223")
+    %Message{}
+
+    iex> get_by_messaging_provider_id("sm98793")
+    ** nil
+
+    iex> get_by_messaging_provider_id(nil)
+    ** nil
+
+  """
+  def get_by_messaging_provider_id(nil), do: nil
+
+  def get_by_messaging_provider_id(messaging_provider_id) do
+    Repo.get_by(Message, messaging_provider_id: messaging_provider_id)
+  end
+
+  @doc """
   Creates a message.
 
   ## Examples

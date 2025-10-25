@@ -4,6 +4,7 @@ defmodule MessagingServiceWeb.MessageController do
   alias MessagingService.External.SendgridAPI
   alias MessagingService.External.TwilioAPI
   alias MessagingService.Conversations
+  alias MessagingService.Messages
 
   action_fallback MessagingServiceWeb.FallbackController
 
@@ -39,26 +40,36 @@ defmodule MessagingServiceWeb.MessageController do
     end
   end
 
-  def sms_webhook(conn, _params) do
-    conn
-    |> put_status(:ok)
-    |> json(%{message: "Message updated"})
+  def sms_webhook(conn, params) do
+    atomized_params = convert_keys_to_atoms(params)
 
-    # parse webhook
-    # find message
-    # update message
-    # return response
+    case Messages.get_by_messaging_provider_id(Map.get(atomized_params, :messaging_provider_id)) do
+      nil ->
+        conn
+        |> put_status(:not_found)
+        |> json(%{message: "Message not found"})
+
+      _message ->
+        conn
+        |> put_status(:ok)
+        |> json(%{message: "Message updated"})
+    end
   end
 
-  def email_webhook(conn, _params) do
-    conn
-    |> put_status(:ok)
-    |> json(%{message: "Message updated"})
+  def email_webhook(conn, params) do
+    atomized_params = convert_keys_to_atoms(params)
 
-    # parse webhook
-    # find message
-    # update message
-    # return response
+    case Messages.get_by_messaging_provider_id(Map.get(atomized_params, :xillio_id)) do
+      nil ->
+        conn
+        |> put_status(:not_found)
+        |> json(%{message: "Message not found"})
+
+      _message ->
+        conn
+        |> put_status(:ok)
+        |> json(%{message: "Message updated"})
+    end
   end
 
   defp convert_keys_to_atoms(map) do

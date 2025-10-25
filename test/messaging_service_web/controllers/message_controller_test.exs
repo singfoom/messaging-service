@@ -312,15 +312,26 @@ defmodule MessagingServiceWeb.MessageControllerTest do
   end
 
   describe "sms_webhook/2" do
-    # TODO: Implement webhook handling logic
-    test "receives inbound SMS webhook", %{conn: conn} do
+    test "returns 200 when message with messaging_provider_id exists", %{conn: conn} do
+      # First create a message with a messaging_provider_id
+      initial_params = %{
+        "from" => "+18045551234",
+        "to" => "+12016661234",
+        "type" => "sms",
+        "body" => "Outbound message",
+        "messaging_provider_id" => "twilio-msg-123",
+        "timestamp" => "2024-11-01T14:00:00Z"
+      }
+
+      post(conn, ~p"/api/messages/sms", initial_params)
+
+      # Now send webhook with the same messaging_provider_id
       webhook_params = %{
         "from" => "+18045551234",
         "to" => "+12016661234",
         "type" => "sms",
-        "messaging_provider_id" => "message-1",
+        "messaging_provider_id" => "twilio-msg-123",
         "body" => "Incoming SMS",
-        "attachments" => nil,
         "timestamp" => "2024-11-01T14:00:00Z"
       }
 
@@ -329,12 +340,26 @@ defmodule MessagingServiceWeb.MessageControllerTest do
       assert json_response(conn, 200) == %{"message" => "Message updated"}
     end
 
-    test "receives inbound MMS webhook", %{conn: conn} do
+    test "returns 200 when MMS message with messaging_provider_id exists", %{conn: conn} do
+      # Create an MMS message
+      initial_params = %{
+        "from" => "+18045551234",
+        "to" => "+12016661234",
+        "type" => "mms",
+        "body" => "Outbound MMS",
+        "messaging_provider_id" => "twilio-mms-456",
+        "attachments" => ["https://example.com/sent-image.jpg"],
+        "timestamp" => "2024-11-01T14:00:00Z"
+      }
+
+      post(conn, ~p"/api/messages/sms", initial_params)
+
+      # Send webhook for the MMS
       webhook_params = %{
         "from" => "+18045551234",
         "to" => "+12016661234",
         "type" => "mms",
-        "messaging_provider_id" => "message-2",
+        "messaging_provider_id" => "twilio-mms-456",
         "body" => "Incoming MMS",
         "attachments" => ["https://example.com/media.jpg"],
         "timestamp" => "2024-11-01T14:00:00Z"
@@ -344,15 +369,56 @@ defmodule MessagingServiceWeb.MessageControllerTest do
 
       assert json_response(conn, 200) == %{"message" => "Message updated"}
     end
+
+    test "returns 404 when message with messaging_provider_id does not exist", %{conn: conn} do
+      webhook_params = %{
+        "from" => "+18045551234",
+        "to" => "+12016661234",
+        "type" => "sms",
+        "messaging_provider_id" => "nonexistent-msg-id",
+        "body" => "Incoming SMS",
+        "timestamp" => "2024-11-01T14:00:00Z"
+      }
+
+      conn = post(conn, ~p"/api/webhooks/sms", webhook_params)
+
+      assert json_response(conn, 404) == %{"message" => "Message not found"}
+    end
+
+    test "returns 404 when messaging_provider_id is nil", %{conn: conn} do
+      webhook_params = %{
+        "from" => "+18045551234",
+        "to" => "+12016661234",
+        "type" => "sms",
+        "body" => "Incoming SMS",
+        "timestamp" => "2024-11-01T14:00:00Z"
+        # messaging_provider_id is missing
+      }
+
+      conn = post(conn, ~p"/api/webhooks/sms", webhook_params)
+
+      assert json_response(conn, 404) == %{"message" => "Message not found"}
+    end
   end
 
   describe "email_webhook/2" do
-    # TODO: Implement webhook handling logic
-    test "receives inbound email webhook", %{conn: conn} do
+    test "returns 200 when message with xillio_id exists", %{conn: conn} do
+      # First create an email message with a messaging_provider_id (xillio_id)
+      initial_params = %{
+        "from" => "user@usehatchapp.com",
+        "to" => "contact@gmail.com",
+        "body" => "<html><body>Outbound email</body></html>",
+        "messaging_provider_id" => "sendgrid-email-789",
+        "timestamp" => "2024-11-01T14:00:00Z"
+      }
+
+      post(conn, ~p"/api/messages/email", initial_params)
+
+      # Now send webhook with xillio_id matching the messaging_provider_id
       webhook_params = %{
         "from" => "user@usehatchapp.com",
         "to" => "contact@gmail.com",
-        "xillio_id" => "message-2",
+        "xillio_id" => "sendgrid-email-789",
         "body" => "<html><body>html is <b>allowed</b> here</body></html>",
         "attachments" => ["https://example.com/attachment.pdf"],
         "timestamp" => "2024-11-01T14:00:00Z"
@@ -363,13 +429,81 @@ defmodule MessagingServiceWeb.MessageControllerTest do
       assert json_response(conn, 200) == %{"message" => "Message updated"}
     end
 
-    test "receives inbound email webhook without attachments", %{conn: conn} do
+    test "returns 200 when email message without attachments exists", %{conn: conn} do
+      # Create email without attachments
+      initial_params = %{
+        "from" => "sender@example.com",
+        "to" => "recipient@example.com",
+        "body" => "Plain email body",
+        "messaging_provider_id" => "sendgrid-email-999",
+        "timestamp" => "2024-11-01T14:00:00Z"
+      }
+
+      post(conn, ~p"/api/messages/email", initial_params)
+
+      # Send webhook
       webhook_params = %{
         "from" => "sender@example.com",
         "to" => "recipient@example.com",
-        "xillio_id" => "message-3",
+        "xillio_id" => "sendgrid-email-999",
         "body" => "Plain email body",
         "attachments" => [],
+        "timestamp" => "2024-11-01T14:00:00Z"
+      }
+
+      conn = post(conn, ~p"/api/webhooks/email", webhook_params)
+
+      assert json_response(conn, 200) == %{"message" => "Message updated"}
+    end
+
+    test "returns 404 when message with xillio_id does not exist", %{conn: conn} do
+      webhook_params = %{
+        "from" => "user@usehatchapp.com",
+        "to" => "contact@gmail.com",
+        "xillio_id" => "nonexistent-email-id",
+        "body" => "<html><body>Incoming email</body></html>",
+        "timestamp" => "2024-11-01T14:00:00Z"
+      }
+
+      conn = post(conn, ~p"/api/webhooks/email", webhook_params)
+
+      assert json_response(conn, 404) == %{"message" => "Message not found"}
+    end
+
+    test "returns 404 when xillio_id is nil", %{conn: conn} do
+      webhook_params = %{
+        "from" => "user@usehatchapp.com",
+        "to" => "contact@gmail.com",
+        "body" => "<html><body>Incoming email</body></html>",
+        "timestamp" => "2024-11-01T14:00:00Z"
+        # xillio_id is missing
+      }
+
+      conn = post(conn, ~p"/api/webhooks/email", webhook_params)
+
+      assert json_response(conn, 404) == %{"message" => "Message not found"}
+    end
+
+    test "returns 200 when email with HTML content and attachments exists", %{conn: conn} do
+      # Create email with both HTML and attachments
+      initial_params = %{
+        "from" => "contact@gmail.com",
+        "to" => "user@usehatchapp.com",
+        "body" => "<html><body>Rich content email</body></html>",
+        "messaging_provider_id" => "message-3",
+        "attachments" => ["https://example.com/original-doc.pdf"],
+        "timestamp" => "2024-11-01T13:00:00Z"
+      }
+
+      post(conn, ~p"/api/messages/email", initial_params)
+
+      # Send webhook matching the selected JSON from the user
+      webhook_params = %{
+        "from" => "contact@gmail.com",
+        "to" => "user@usehatchapp.com",
+        "xillio_id" => "message-3",
+        "body" => "<html><body>This is an incoming email with <b>HTML</b> content</body></html>",
+        "attachments" => ["https://example.com/received-document.pdf"],
         "timestamp" => "2024-11-01T14:00:00Z"
       }
 
