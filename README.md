@@ -144,3 +144,13 @@ docker-compose exec postgres psql -U messaging_user -d messaging_service
 ```
 
 Again, you are welcome to make changes here, as long as they're in the docker-compose.yml
+
+## Testing instructions
+The testing path in '.test.sh' has been updated to localhost:4000.
+
+In order to run please ensure you have elixir and erlang installed. If need be, please run `asdf install` to install the versions from '.tool-versions'.  Ensure you have the docker database running.
+
+From the project directory run `./bin/start.sh`.  It may need to have its
+permissions updated via `chmod +x ./bin/start.sh`.  The database should create and migrate and the server should start.
+
+In another terminal window from the project root, please run '/test.sh'.
