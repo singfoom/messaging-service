@@ -48,7 +48,10 @@ defmodule MessagingService.Conversations do
           |> Conversation.changeset(conversation_attrs)
           |> Ecto.Changeset.cast_assoc(:messages)
 
-        Repo.insert(changeset)
+        # Preload the messages on the conversation
+        with {:ok, conversation} <- Repo.insert(changeset) do
+          {:ok, Repo.preload(conversation, [:messages])}
+        end
 
       conversation ->
         changeset =
