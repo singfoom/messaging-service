@@ -13,15 +13,21 @@ defmodule MessagingServiceWeb.MessageController do
 
     with :ok <- validate_required_fields(atomized_params, [:from, :to]),
          {:ok, result} <- Conversations.find_or_create_conversation_with_message(atomized_params),
-         {:ok, %Req.Response{status: status, body: body}} <- TwilioAPI.send_sms_message(result) do
-      case status do
-        201 ->
-          {:ok, _message} = Messages.update_message(result, %{messaging_provider_id: body[:sid]})
+         {:ok, %Req.Response{status: 201, body: body}} <- TwilioAPI.send_sms_message(result) do
+      {:ok, _message} = Messages.update_message(result, %{messaging_provider_id: body[:sid]})
 
-          conn
-          |> put_status(:created)
-          |> json(%{message: "Message created"})
-      end
+      conn
+      |> put_status(:created)
+      |> json(%{message: "Message created"})
+    else
+      {:ok, %Req.Response{status: status, body: body}} ->
+        conn
+        |> put_status(:bad_gateway)
+        |> json(%{errors: %{detail: "Provider returned unexpected status: #{status}", provider_response: body}})
+
+      {:error, _} = error ->
+        # Let FallbackController handle errors (bad_request, changeset, etc.)
+        error
     end
   end
 
@@ -32,15 +38,21 @@ defmodule MessagingServiceWeb.MessageController do
     with :ok <- validate_required_fields(atomized_params, [:from, :to]),
          {:ok, result} <-
            Conversations.find_or_create_conversation_with_message(atomized_params),
-         {:ok, %Req.Response{status: status, body: body}} <- SendgridAPI.send_email(result) do
-      case status do
-        202 ->
-          {:ok, _message} = Messages.update_message(result, %{messaging_provider_id: body[:sid]})
+         {:ok, %Req.Response{status: 202, body: body}} <- SendgridAPI.send_email(result) do
+      {:ok, _message} = Messages.update_message(result, %{messaging_provider_id: body[:sid]})
 
-          conn
-          |> put_status(:created)
-          |> json(%{message: "Message created"})
-      end
+      conn
+      |> put_status(:created)
+      |> json(%{message: "Message created"})
+    else
+      {:ok, %Req.Response{status: status, body: body}} ->
+        conn
+        |> put_status(:bad_gateway)
+        |> json(%{errors: %{detail: "Provider returned unexpected status: #{status}", provider_response: body}})
+
+      {:error, _} = error ->
+        # Let FallbackController handle errors (bad_request, changeset, etc.)
+        error
     end
   end
 
