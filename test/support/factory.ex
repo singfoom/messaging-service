@@ -9,12 +9,13 @@ defmodule MessagingService.Factory do
 
   def sms_message_factory do
     %Message{
-      from: Faker.Phone.EnUs.phone(),
-      to: Faker.Phone.EnUs.phone(),
-      type: Faker.Util.pick(["sms", "mms"]),
       attachments: [],
       body: Faker.Lorem.Shakespeare.hamlet(),
-      timestamp: DateTime.utc_now()
+      from: Faker.Phone.EnUs.phone(),
+      messaging_provider_id: nil,
+      timestamp: DateTime.utc_now(),
+      to: Faker.Phone.EnUs.phone(),
+      type: Faker.Util.pick(["sms", "mms"])
     }
   end
 

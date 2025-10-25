@@ -13,26 +13,28 @@ defmodule MessagingService.Messages.Message do
   alias MessagingService.Messages.Conversation
 
   @type t :: %__MODULE__{
-          timestamp: DateTime.t(),
-          type: String.t(),
+          attachments: list(String.t()),
           body: String.t(),
-          to: String.t(),
           from: String.t(),
-          attachments: list(String.t())
+          messaging_provider_id: String.t(),
+          timestamp: DateTime.t(),
+          to: String.t(),
+          type: String.t()
         }
 
   schema "messages" do
-    field :timestamp, :utc_datetime
-    field :type, :string
-    field :body, :string
-    field :to, :string
-    field :from, :string
     field :attachments, {:array, :string}
+    field :body, :string
+    field :from, :string
+    field :messaging_provider_id, :string
+    field :timestamp, :utc_datetime
+    field :to, :string
+    field :type, :string
     belongs_to :conversation, Conversation
     timestamps(type: :utc_datetime)
   end
 
-  @allowed_attribtes ~w(from to type body attachments timestamp)a
+  @allowed_attribtes ~w(from to type body messaging_provider_id attachments timestamp)a
   @allowed_types ~w(email mms sms)
 
   @required_attributes ~w(from to type body timestamp)a
